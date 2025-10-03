@@ -60,6 +60,22 @@ class OrdenVehiculo extends Model
         // Responsable de PV
         'resppv', // Nombre del responsable de PV
         'rperesppv', // R.P.E del responsable de PV
+        'orden_500',
+        'status',
     ];
+
+    /**
+     * Get all of the archivos for the OrdenVehiculo
+     *
+     */
+    public function archivos()
+    {
+        return $this->hasMany(OrdenArchivo::class, 'orden_vehiculo_id');
+    }
+
+    public function historial()
+    {
+        return $this->hasMany(HistorialOrden::class, 'orden_vehiculo_id');
+    }
 
 }

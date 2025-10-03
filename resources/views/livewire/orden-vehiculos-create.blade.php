@@ -1,41 +1,60 @@
-<div>
+<div class="mx-10 shadow-lg rounded-lg p-5 mt-5 bg-white">
     <form action="{{ isset($ordenEditar) ? route('ordenvehiculos.update', $ordenEditar->id): route('ordenvehiculos.store')}}" method="post">
-        route('ordenvehiculos.store')
         @csrf
         @if (isset($ordenEditar))
             @method('PUT')
         @endif
         <div class="grid grid-cols-3 gap-4 mx-10 my-5">
-            <flux:input label="Area" placeholder="Escribe el area" name="area" required value="{{ isset($ordenEditar) ? $ordenEditar->area : '' }}"/>
-            {{-- datalist --}}
+            <flux:input label="Area" list="datalist1" placeholder="Escribe el area" name="area" required value="{{ isset($ordenEditar) ? $ordenEditar->area : '' }}"/>
+            <datalist id="datalist1">
+                <option value="DW01"></option>
+                <option value="DW01A"></option>
+                <option value="DW01B"></option>
+                <option value="DW01C"></option>
+                <option value="DW01D"></option>
+                <option value="DW01E"></option>
+                <option value="DW01G"></option>
+                <option value="DW01H"></option>
+                <option value="DW01J"></option>
+                <option value="DW01K"></option>
+                <option value="DW01M"></option>
+            </datalist>
+
             <flux:input label="Zona" name="zona" required value="{{ isset($ordenEditar) ? $ordenEditar->zona : 'MERIDA' }}"/>
             <flux:input label="Departamento" name="departamento" required value="{{ isset($ordenEditar) ? $ordenEditar->departamento : 'COMERCIAL' }}"/>
         </div>
         <div class="grid grid-cols-3 gap-4 mx-10 my-5">
-            <flux:input label="No. Economico" placeholder="Escribe No" name="noeconomico" required value="{{ isset($ordenEditar) ? $ordenEditar->noeconomico : '' }}"/>
-            {{-- datalist --}}
-            {{-- autoacompletar input --}}
-            <flux:input label="Marca" placeholder="Escribe marca" name="marca" required value="{{ isset($ordenEditar) ? $ordenEditar->marca : '' }}"/>
-            {{-- datalist --}}
-            {{-- autoacompletar input --}}
-            <flux:input label="Placas" placeholder="Escribe placa" name="placas" required value="{{ isset($ordenEditar) ? $ordenEditar->placas : '' }}"/>
-            {{-- placas --}}
-            {{-- autoacompletar input --}}
+            <flux:input label="No. Economico" list="datalist2" placeholder="Escribe No" name="noeconomico" required value="{{ isset($ordenEditar) ? $ordenEditar->noeconomico : '' }}" wire:model.change="numeco"/>
+            <datalist id="datalist2">
+                @foreach ($noeconom as $numero)
+                    <option value="{{$numero}}"></option>
+                @endforeach
+            </datalist>
+            <flux:input label="Marca" placeholder="Escribe marca" name="marca" required wire:model="modelo"/>
+
+            <flux:input label="Placas" placeholder="Escribe placa" name="placas" required wire:model="placa"/>
+
         </div>
         <div class="grid grid-cols-3 gap-4 mx-10 my-5">
             <flux:input label="Taller" placeholder="Escribe taller" name="taller" value="{{ isset($ordenEditar) ? $ordenEditar->taller : '' }}"/>
-            <flux:input label="Kilometraje" placeholder="Escribe kilometraje" name="kilometraje" value="{{ isset($ordenEditar) ? $ordenEditar->kilometraje : '' }}"/>
-            <flux:input type="date" label="Fecha de recepción" name="fecharecep" value="{{ isset($ordenEditar) ? $ordenEditar->fecharecep : '' }}"/>
+            <flux:input type="number" label="Kilometraje" placeholder="Escribe kilometraje" name="kilometraje" value="{{ old('kilometraje',isset($ordenEditar) ? $ordenEditar->kilometraje : '') }}"/>
+                <div class="grid grid-cols-2 gap-6">
+            {{-- Columna Izquierda --}}
+            <flux:input type="date" label="Fecha de generación" name="fechafirm" value="{{ $ordenEditar->fechafirm ?? now()->format('Y-m-d') }}"/>
+            {{-- Columna Derecha (lo mostramos como fecha, como pediste) --}}
+            <flux:input type="date" label="Fecha de recepción" name="fecharecep" value="{{ $ordenEditar->fecharecep ?? '' }}" />
+</div>
+
         </div>
         <div class="mx-10 my-5">
             <flux:separator />
         </div>
-        {{-- Listo solo falta datalist --}}
 
+        <div class="grid grid-cols-3 gap-4">
+        <div class="col-span-2">
         <flux:heading size="lg" class="mx-10 my-5">MARCAR LA (S) CASILLA (S) QUE INDIQUE LA EXISTENCIA:
         </flux:heading>
-
-        <div class="grid grid-cols-3 gap-4 mx-10">
+        <div class="grid grid-cols-3 gap-4 mx-10 my-2">
             <x-radio-group label="Radiocomunicación" name="radiocom" :opciones="[
                 ['id' => 'opcion1', 'value' => 'Si ', 'label_opcion' => 'SI','checked' => isset($ordenEditar) && trim($ordenEditar->radiocom) == 'Si' ? 'checked' : null],
                 ['id' => 'opcion2', 'value' => 'No ', 'label_opcion' => 'NO', 'checked' => isset($ordenEditar) && trim($ordenEditar->radiocom) == 'No' || !isset($ordenEditar) ? 'checked' : null],
@@ -50,7 +69,7 @@
                 ['id' => 'opcion2', 'value' => 'No ', 'label_opcion' => 'NO', 'checked' => isset($ordenEditar) && trim($ordenEditar->autoestereo) == 'No' || !isset($ordenEditar) ? 'checked' : null],
             ]" />
         </div>
-        <div class="grid grid-cols-3 gap-4 mx-10">
+        <div class="grid grid-cols-3 gap-4 mx-10 my-2">
             <x-radio-group label="Gato Hidráulico" name="gatoh" :opciones="[
                 ['id' => 'opcion1', 'value' => 'Si ', 'label_opcion' => 'SI' ,'checked' => isset($ordenEditar) && trim($ordenEditar->gatoh) == 'Si' ? 'checked' : null],
                 ['id' => 'opcion2', 'value' => 'No ', 'label_opcion' => 'NO', 'checked' => isset($ordenEditar) && trim($ordenEditar->gatoh) == 'No' || !isset($ordenEditar) ? 'checked' : null],
@@ -80,12 +99,13 @@
                 ['id' => 'opcion2', 'value' => 'No', 'label_opcion' => 'NO', 'checked' => isset($ordenEditar) && trim($ordenEditar->escalerad) == 'No' || !isset($ordenEditar) ? 'checked' : null],
             ]" />
         </div>
+        </div>
+        <div class="mx-10" class="col-span-1">
+            <flux:heading class="my-5" size="lg">SELECCIONE EL NIVEL DE GASOLINA:</flux:heading>
+            <livewire:gasolina-imagen :nivelGasolina="$nivelGasolina"/>
 
-        <div class="mx-10">
-            <flux:heading class="my-5" size="lg">Seleccione el nivel de gasolina:</flux:heading>
-
-            <input name="gasolina" type="range" min="0" max="100" value="{{ isset($ordenEditar) ? $ordenEditar->gasolina : '50' }}" class="range w-full"
-                step="25" aria-label="range" />
+            <input name="gasolina" type="range" min="0" max="100"  class="range w-full"
+                step="25" aria-label="range" wire:model.live="nivelGasolina"/>
             <div class="w-full flex justify-between text-xs px-2">
                 <span class="text-base">Vacio</span>
                 <span class="text-base">1/4</span>
@@ -95,6 +115,8 @@
             </div>
 
         </div>
+        </div>
+
         <div class="mx-10 my-5">
             <flux:separator />
         </div>
@@ -251,9 +273,17 @@
         <div class="mx-10 my-5 grid grid-cols-2 gap-2">
             <flux:input name="observacion" icon="list-bullet" label="Observaciones:" placeholder="Escribe aqui"
                 required value="{{ isset($ordenEditar) ? $ordenEditar->observacion : '' }}"/>
-            <flux:input type="date" label="Fecha de firma:" name="fechafirm" value="{{ isset($ordenEditar) ? $ordenEditar->fechafirm : '' }}"/>
+                
+            <div class="mr-100" x-data="{ orden500: '{{ isset($ordenEditar) && !is_null($ordenEditar->orden_500) ? (strtolower($ordenEditar->orden_500) === 'no' ? 'NO' : 'SI') : 'NO' }}' }">
+                <flux:radio.group label="Requiere 500:" variant="segmented" x-model="orden500">
+                <flux:radio label="No" icon="x-mark" value="NO" />
+                <flux:radio label="Si" icon="check" value="SI" />
+                </flux:radio.group>
+                <input type="hidden" name="orden_500" x-bind:value="orden500">
+            </div>
 
         </div>
+
         <div class="mx-10 my-5">
             <flux:separator />
         </div>
@@ -265,7 +295,7 @@
                     <flux:input icon="user" name="areausuaria" placeholder="Escribe aqui" required value="{{ isset($ordenEditar) ? $ordenEditar->areausuaria : '' }}"/>
                     {{-- datalist --}}
                     <flux:badge>R.P.E</flux:badge>
-                    <flux:input icon="identification" name="rpeusuaria" placeholder="Escribe aqui" value="{{ isset($ordenEditar) ? $ordenEditar->rpeusuaria : '' }}"/>
+                    <flux:input icon="identification" name="rpeusuaria" placeholder="Escribe aqui" required value="{{ isset($ordenEditar) ? $ordenEditar->rpeusuaria : '' }}"/>
                     {{-- autoacompletar input --}}
                 </flux:field>
                 <flux:field>
@@ -273,7 +303,7 @@
                     <flux:input icon="user" name="autoriza" placeholder="Escribe aqui" required value="{{ isset($ordenEditar) ? $ordenEditar->autoriza : '' }}"/>
                     {{-- datalist --}}
                     <flux:badge>R.P.E</flux:badge>
-                    <flux:input icon="identification" name="rpejefedpt" placeholder="Escribe aqui" value="{{ isset($ordenEditar) ? $ordenEditar->rpejefedpt : '' }}"/>
+                    <flux:input icon="identification" name="rpejefedpt" placeholder="Escribe aqui" required value="{{ isset($ordenEditar) ? $ordenEditar->rpejefedpt : '' }}"/>
                     {{-- autoacompletar input --}}
                 </flux:field>
                 <flux:field>
@@ -281,12 +311,11 @@
                     <flux:input icon="user" name="resppv" placeholder="Escribe aqui" required value="{{ isset($ordenEditar) ? $ordenEditar->resppv : '' }}"/>
                     {{-- datalist --}}
                     <flux:badge>R.P.E</flux:badge>
-                    <flux:input icon="identification" name="rperesppv" placeholder="Escribe aqui" value="{{ isset($ordenEditar) ? $ordenEditar->rperesppv : '' }}"/>
+                    <flux:input icon="identification" name="rperesppv" placeholder="Escribe aqui" required value="{{ isset($ordenEditar) ? $ordenEditar->rperesppv : '' }}"/>
                     {{-- autoacompletar input --}}
                 </flux:field>
             </div>
             <div class="flex justify-center ">
-                {{--  --}}
 
                 <flux:button variant="primary" class="w-72" type="submit">
                     {{ isset($ordenEditar) ? 'ACTUALIZAR DOCUMENTO' : 'GENERAR DOCUMENTO' }}

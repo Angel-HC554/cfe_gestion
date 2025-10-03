@@ -1,8 +1,12 @@
 <x-layouts.app :title="__('Dashboard')">
     <div class="flex h-full w-full flex-1 flex-col gap-4 rounded-xl">
 
+        <div class="flex justify-between">
         <flux:heading size="xl">Ordenes de servicio y reparación</flux:heading>
-         {{-- Mensaje de exito al eliminar --}}
+        <flux:button variant="primary" href="{{ route('ordenvehiculos.create') }}">CREAR ORDEN</flux:button>
+        </div>
+
+         {{-- Mensajes  --}}
         <div id="flash-message-container"
             style="position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999;">
 

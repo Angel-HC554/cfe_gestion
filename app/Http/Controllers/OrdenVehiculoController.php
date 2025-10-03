@@ -2,10 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\HistorialOrden;
+use App\Models\OrdenArchivo;
 use App\Models\OrdenVehiculo;
 use Illuminate\Http\Request;
 use TinyButStrong\clsTinyButStrong;
+use Illuminate\Support\Facades\Process;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\File;
 use clsOpenTBS;
+use Illuminate\Support\Facades\Storage;
+
 
 class OrdenVehiculoController extends Controller
 {
@@ -16,6 +23,32 @@ class OrdenVehiculoController extends Controller
     {
         $ordenes = OrdenVehiculo::all();
         return view('ordenvehiculos.index', compact('ordenes'));
+    }
+
+    // Descarga el escaneo de ENTRADA (Entregado PV) por ID de orden
+    public function descargarEscaneoEntrada($id)
+    {
+        $escaneo = \App\Models\OrdenArchivo::where('orden_vehiculo_id', $id)
+            ->where('tipo_archivo', 'entrada')
+            ->first();
+        if ($escaneo) {
+            $path = Storage::disk('public')->path($escaneo->ruta_archivo);
+            return response()->download($path);
+        }
+        return redirect()->back()->with('error', 'El archivo no existe.');
+    }
+
+    // Descarga el escaneo de SALIDA (Vehículo funcionamiento) por ID de orden
+    public function descargarEscaneoSalida($id)
+    {
+        $escaneo = \App\Models\OrdenArchivo::where('orden_vehiculo_id', $id)
+            ->where('tipo_archivo', 'salida')
+            ->first();
+        if ($escaneo) {
+            $path = Storage::disk('public')->path($escaneo->ruta_archivo);
+            return response()->download($path);
+        }
+        return redirect()->back()->with('error', 'El archivo no existe.');
     }
 
     /**
@@ -63,6 +96,8 @@ class OrdenVehiculoController extends Controller
             'rpejefedpt' => 'required|string',
             'resppv' => 'required|string',
             'rperesppv' => 'required|string',
+            // Orden 500 (usar valores en MAYÚSCULAS)
+            'orden_500' => 'nullable|in:SI,NO',
         ]);
 
         // Validación para opciones de checkbox
@@ -93,10 +128,21 @@ class OrdenVehiculoController extends Controller
             $validatedData[$checkbox] = $request->input($checkbox, '');
         }
 
+        // Asegurar y normalizar orden_500 a MAYÚSCULAS; por defecto 'NO'
+        $validatedData['orden_500'] = strtoupper($request->input('orden_500', 'NO'));
+
         //Crea el registro en la bd
         $orden = OrdenVehiculo::create($validatedData);
+        //Crea el historial de la orden
+        HistorialOrden::create(
+            [
+                'orden_vehiculo_id' => $orden->id,
+                'tipo_evento' => 'orden_creado',
+                'detalles' => 'Orden creado',
+            ]
+        );
         // Redirige a la misma página (create) y pasa el ID de la orden en la sesión.
-        // Esto es lo que Livewire usará para abrir el modal.
+        // Esto es lo que Livewire usará para abrir el modal de exito y descargar.
         return redirect()->route('ordenvehiculos.create')->with('orden_id', $orden->id);
     }
 
@@ -197,17 +243,86 @@ class OrdenVehiculoController extends Controller
         $TBS->PlugIn(OPENTBS_DELETE_COMMENTS);
         //$TBS->Plugin(OPENTBS_DEBUG_XML_SHOW);
 
-        // 1. Asigna el nombre del archivo.
+        // Asigna el nombre del archivo.
         $fileName = 'orden_vehiculo_' . $orden->id . '.docx';
-        $TBS->Show(\TBS_OUTPUT, $fileName);
+        $docxFilePath = storage_path('app/public/orden_vehiculos/' . $fileName); 
+        $TBS->Show(\OPENTBS_FILE, $docxFilePath);
+        
+        // Redirigir a la generación/descarga del PDF inmediatamente después de crear el DOCX
+        return redirect()->route('ordenvehiculos.pdf', ['id' => $orden->id]);
+    }
+
+    public function generatePdf($id)
+    {
+        // 1. Definición de Archivos y Rutas
+        $docxInputFile = 'orden_vehiculo_' . $id . '.docx';
+        $outputDirectoryName = 'pdf_exports';
+        
+        // Rutas absolutas
+        $docxFilePath = storage_path("app/public/orden_vehiculos/{$docxInputFile}");
+        $outputDirectory = storage_path("app/public/{$outputDirectoryName}");
+
+         // 2. Comprobaciones iniciales
+         if (!File::exists($docxFilePath)) {
+            return response("Error: El archivo DOCX de entrada no se encontró en: {$docxFilePath}", 404);
+        }
+
+        if (!File::exists($outputDirectory)) {
+            // Crea la carpeta de salida si no existe (0755 es el permiso estándar en Linux)
+            File::makeDirectory($outputDirectory, 0755, true);
+        }
+        
+
+        // 3. Preparar y Ejecutar el Comando
+        $sofficePath = env('LIBREOFFICE_PATH'); 
+        
+        // El comando de LibreOffice Headless en Linux.
+        // Los argumentos clave son:
+        // --headless: Ejecutar sin interfaz gráfica.
+        // --convert-to pdf: Convertir al formato PDF.
+        // --outdir: Directorio donde se guardará el PDF.
+        $command = "{$sofficePath} --headless --convert-to pdf {$docxFilePath} --outdir {$outputDirectory}";
+
+        // Ejecutar el comando con Laravel Process
+        $result = Process::run($command);
+
+        // 4. Procesar el Resultado
+        if ($result->successful()) {
+            
+            // LibreOffice usa el mismo nombre base, solo cambia la extensión.
+            $pdfFileName = Str::replaceLast('docx', 'pdf', basename($docxInputFile));
+            $pdfFilePath = "{$outputDirectory}/{$pdfFileName}";
+
+            if (File::exists($pdfFilePath)) {
+                // Devolver el archivo para descarga y borrar el temporal
+                return response()->download($pdfFilePath, $pdfFileName)->deleteFileAfterSend(true);
+            }
+            
+            return response('Error: Conversión exitosa pero el archivo PDF no se encontró.', 500);
+
+        } else {
+            // Error en la ejecución del comando (ej. permisos, ruta incorrecta, etc.)
+            return response('Error en la conversión de LibreOffice: ' . $result->errorOutput(), 500);
+        }
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(OrdenVehiculo $ordenVehiculo)
+    public function show(OrdenVehiculo $ordenvehiculo)
     {
-        //
+        $historial = HistorialOrden::where('orden_vehiculo_id', $ordenvehiculo->id)
+            ->orderBy('id', 'desc')
+            ->get();
+        $archivo1 = OrdenArchivo::where('orden_vehiculo_id', $ordenvehiculo->id)
+            ->where('tipo_archivo', 'entrada')
+            ->select('comentarios')
+            ->get();
+        $archivo2 = OrdenArchivo::where('orden_vehiculo_id', $ordenvehiculo->id)
+            ->where('tipo_archivo', 'salida')
+            ->select('comentarios')
+            ->get();
+        return view('ordenvehiculos.show', compact('historial', 'ordenvehiculo', 'archivo1', 'archivo2'));
     }
 
     /**
@@ -254,6 +369,8 @@ class OrdenVehiculoController extends Controller
             'rpejefedpt' => 'required|string',
             'resppv' => 'required|string',
             'rperesppv' => 'required|string',
+            // Orden 500 (usar valores en MAYÚSCULAS)
+            'orden_500' => 'nullable|in:SI,NO',
         ]);
 
         // Validación para opciones de checkbox
@@ -283,9 +400,20 @@ class OrdenVehiculoController extends Controller
         foreach ($checkboxes as $checkbox) {
             $validatedData[$checkbox] = $request->input($checkbox, '');
         }
+        // Asegurar y normalizar orden_500 a MAYÚSCULAS; por defecto 'NO'
+        $validatedData['orden_500'] = strtoupper($request->input('orden_500', 'NO'));
+
         $ordenVehiculo = OrdenVehiculo::findOrFail($id);
         //Actualiza el registro en la bd
         $ordenVehiculo->update($validatedData);
+        //Crea el historial de la orden
+        HistorialOrden::create(
+            [
+                'orden_vehiculo_id' => $ordenVehiculo->id,
+                'tipo_evento' => 'orden_actualizado',
+                'detalles' => 'Orden actualizado',
+            ]
+        );
         return redirect()->route('ordenvehiculos.edit', ['ordenvehiculo' => $ordenVehiculo->id])->with('orden_id', $ordenVehiculo->id);
     }
 

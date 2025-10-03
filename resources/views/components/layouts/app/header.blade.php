@@ -5,8 +5,8 @@
     @include('partials.head')
 </head>
 
-<body class="min-h-screen bg-white dark:bg-zinc-800">
-    <flux:header sticky container class="border-b border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900">
+<body class="min-h-screen bg-neutral-50 dark:bg-zinc-800">
+    <flux:header sticky class="border-b bg-slate-100 dark:border-zinc-700 dark:bg-zinc-900">
         <flux:sidebar.toggle class="lg:hidden" icon="bars-2" inset="left" />
 
         <a href="{{ route('dashboard') }}" class="ms-2 me-5 flex items-center space-x-2 rtl:space-x-reverse lg:ms-0"
@@ -19,18 +19,28 @@
                 wire:navigate>
                 {{ __('Inicio') }}
             </flux:navbar.item>
-            <flux:navbar.item icon="wrench" :href="route('ordenvehiculos.index')" :current="request()->routeIs('ordenvehiculos.index')"
+
+            {{--<flux:navbar.item icon="document-text" :href="route('ordenvehiculos.index')" :current="request()->routeIs('ordenvehiculos.index')"
                 wire:navigate>
                 {{ __('Orden Vehiculos') }}
             </flux:navbar.item>
-            {{-- <flux:dropdown>
-                <flux:navbar.item icon:trailing="chevron-down">Ver</flux:navbar.item>
+            <flux:navbar.item icon="truck" :href="route('vehiculos.index')" :current="request()->routeIs('vehiculos.index')"
+                wire:navigate>
+                {{ __('Vehiculos') }}
+            </flux:navbar.item>--}}
+
+             <flux:dropdown>
+                <flux:navbar.item icon:trailing="chevron-down">Opciones</flux:navbar.item>
                 <flux:navmenu>
-                    <flux:navmenu.item icon="wrench" href="{{ route('dashboard') }}">Ordenes atencion al vehiculo</flux:navmenu.item>
-                    <flux:navmenu.item href="#">opcion</flux:navmenu.item>
-                    <flux:navmenu.item href="#">opcion</flux:navmenu.item>
+                    <flux:navmenu.item icon="document-text" href="{{ route('ordenvehiculos.index') }}">Generación de órdenes</flux:navmenu.item>
+                    <flux:navmenu.item icon="truck" href="{{ route('vehiculos.index') }}">Vehiculos</flux:navmenu.item>
                 </flux:navmenu>
-            </flux:dropdown> --}}
+            </flux:dropdown> 
+
+            <flux:navbar.item icon="bell" :href="route('dashboard')" :current="request()->routeIs('')"
+                wire:navigate> 
+                <livewire:mostrar-notificaciones />
+            </flux:navbar.item>
 
         </flux:navbar>
 
@@ -48,7 +58,7 @@
 
         <!-- Desktop User Menu -->
         <flux:dropdown position="top" align="end">
-            <flux:profile class="cursor-pointer" :initials="auth()->user()->initials()" />
+            <flux:profile name="{{ auth()->user()->name }}" class="cursor-pointer" :initials="auth()->user()->initials()" />
 
             <flux:menu>
                 <flux:menu.radio.group>

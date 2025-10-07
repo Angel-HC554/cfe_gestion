@@ -40,7 +40,9 @@ class VerAutos extends Component
     }
     public function render()
     {
-        $consulta = Vehiculo::query();
+        $consulta = Vehiculo::query()
+            ->select('id', 'marca', 'modelo', 'año', 'no_economico', 'estado', 'tipo_vehiculo', 'placas');
+        
         if ($this->search) {
             $consulta->where('no_economico', 'like', '%' . $this->search . '%');
         }

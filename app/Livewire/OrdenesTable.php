@@ -280,7 +280,9 @@ class OrdenesTable extends Component
     public function render()
     {
         //consulta a bd para filtrar por fechas
-        $consulta = OrdenVehiculo::query();
+        $consulta = OrdenVehiculo::query()
+            ->select('id', 'area', 'zona', 'departamento', 'noeconomico', 'status', 'fechafirm', 'created_at', 'updated_at', 'orden_500');
+        
         // Filtro base por No. Económico exacto (si viene desde el padre)
         if (!empty($this->noeconomicoExact)) {
             $consulta->where('noeconomico', $this->noeconomicoExact);

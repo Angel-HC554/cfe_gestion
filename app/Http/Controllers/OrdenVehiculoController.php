@@ -21,7 +21,9 @@ class OrdenVehiculoController extends Controller
      */
     public function index()
     {
-        $ordenes = OrdenVehiculo::all();
+        // Optimizado: solo selecciona los campos necesarios para el index
+        $ordenes = OrdenVehiculo::select('id', 'area', 'zona', 'departamento', 'noeconomico', 'status', 'fechafirm', 'created_at', 'updated_at', 'orden_500')
+            ->get();
         return view('ordenvehiculos.index', compact('ordenes'));
     }
 
@@ -276,12 +278,11 @@ class OrdenVehiculoController extends Controller
         // 3. Preparar y Ejecutar el Comando
         $sofficePath = env('LIBREOFFICE_PATH'); 
         
-        // El comando de LibreOffice Headless en Linux.
         // Los argumentos clave son:
         // --headless: Ejecutar sin interfaz gráfica.
         // --convert-to pdf: Convertir al formato PDF.
         // --outdir: Directorio donde se guardará el PDF.
-        $command = "{$sofficePath} --headless --convert-to pdf {$docxFilePath} --outdir {$outputDirectory}";
+        $command = "\"{$sofficePath}\" --headless --convert-to pdf \"{$docxFilePath}\" --outdir \"{$outputDirectory}\"";
 
         // Ejecutar el comando con Laravel Process
         $result = Process::run($command);

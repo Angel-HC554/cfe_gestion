@@ -108,12 +108,6 @@
                                     </flux:menu>
                             </flux:dropdown>
 
-                            <flux:button variant="filled"
-                            icon="document-text" href="{{ route('ordenvehiculos.descargar', [$orden->id]) }}" />
-                            <flux:button variant="filled" class="bg-blue-100! hover:bg-blue-200!" href=""
-                                icon="document-text" wire:click="descargarEscaneo1({{ $orden->id }})" />
-                            <flux:button variant="filled" class="bg-blue-100! hover:bg-blue-200!" href=""
-                                icon="document-text" wire:click="descargarEscaneo2({{ $orden->id }})" />
                         </td>
                         <td class="px-6 py-4 flex justify-start">
                             @if ($orden->orden_500 == 'NO')

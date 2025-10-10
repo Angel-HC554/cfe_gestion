@@ -1,5 +1,5 @@
 <?php
-
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\OrdenVehiculoController;
 use App\Http\Controllers\VehiculoController;
 use App\Livewire\Settings\Appearance;
@@ -11,12 +11,12 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return auth()->user() ? view('dashboard') : redirect('login');//revisar
 });
-
+Route::resource('users',UserController::class);
 //Route::resource('ordenvehiculos', OrdenVehiculoController::class)->except(
     //['show', 'destroy']);
 Route::get('/ordenvehiculos/{id}/pdf', [OrdenVehiculoController::class, 'generatePdf'])->name('ordenvehiculos.pdf');
 
-Route::get('/ordenvehiculos/{id}/descargar',[OrdenVehiculoController::class, 'generarOrden'])->name('ordenvehiculos.descargar');
+Route::get('/ordenvehiculos/{id}/generar',[OrdenVehiculoController::class, 'generarOrden'])->name('ordenvehiculos.generar');
 
 // Descargas de escaneos (entrada/salida)
 Route::get('/ordenvehiculos/{id}/escaneo/entrada', [OrdenVehiculoController::class, 'descargarEscaneoEntrada'])->name('ordenvehiculos.escaneo.entrada');

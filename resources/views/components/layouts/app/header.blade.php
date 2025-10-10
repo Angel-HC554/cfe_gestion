@@ -34,6 +34,7 @@
                 <flux:navmenu>
                     <flux:navmenu.item icon="document-text" href="{{ route('ordenvehiculos.index') }}">Generación de órdenes</flux:navmenu.item>
                     <flux:navmenu.item icon="truck" href="{{ route('vehiculos.index') }}">Vehiculos</flux:navmenu.item>
+                    <flux:navmenu.item icon="user" href="{{ route('users.index') }}">Usuarios</flux:navmenu.item>
                 </flux:navmenu>
             </flux:dropdown> 
 

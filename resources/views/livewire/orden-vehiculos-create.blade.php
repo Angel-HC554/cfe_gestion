@@ -331,7 +331,7 @@
                         <div class="flex">
                             <flux:spacer />
                             <flux:button icon="arrow-down-tray" class="ml-5"
-                                href="{{ route('ordenvehiculos.descargar', ['id' => $ordenId]) }}">
+                                href="{{ route('ordenvehiculos.pdf', ['id' => $ordenId]) }}">
                                 Descargar Documento
                             </flux:button>
                             <flux:button variant="primary" class="ml-5" href="{{ route('ordenvehiculos.index') }}">

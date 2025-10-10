@@ -93,16 +93,12 @@
                             {{ $orden->fechafirm }}
                         </td>
 
-                        {{-- <td class="px-6 py-4">
-                            <flux:button variant="filled" class="bg-blue-100!"
-                                href="{{ route('ordenvehiculos.descargar', [$orden->id]) }}">Doc</flux:button>
-                        </td> --}}
                         <td class="px-6 py-4">
 
                             <flux:dropdown>
                                 <flux:button icon:trailing="document-text" class="bg-blue-100! hover:bg-blue-200!"/>
                                     <flux:menu>
-                                    <flux:menu.item icon="document" href="{{ route('ordenvehiculos.descargar', [$orden->id]) }}">Documento generado</flux:menu.item>
+                                    <flux:menu.item icon="document" href="{{ route('ordenvehiculos.pdf', [$orden->id]) }}">Documento generado</flux:menu.item>
                                     <flux:menu.item icon="document-arrow-up" wire:click="descargarEscaneo1({{ $orden->id }})">Entregado a PV</flux:menu.item>
                                     <flux:menu.item icon="document-check" wire:click="descargarEscaneo2({{ $orden->id }})">Concluido</flux:menu.item>
                                     </flux:menu>

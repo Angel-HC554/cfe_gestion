@@ -145,7 +145,8 @@ class OrdenVehiculoController extends Controller
         );
         // Redirige a la misma página (create) y pasa el ID de la orden en la sesión.
         // Esto es lo que Livewire usará para abrir el modal de exito y descargar.
-        return redirect()->route('ordenvehiculos.create')->with('orden_id', $orden->id);
+        //return redirect()->route('ordenvehiculos.generarOrden', ['id' => $orden->id]);
+        return redirect()->route('ordenvehiculos.generar', ['id' => $orden->id]);
     }
 
     public function generarOrden($id)
@@ -207,7 +208,7 @@ class OrdenVehiculoController extends Controller
         $gasImg = public_path('');
         switch ($orden->gasolina) {
             case '0':
-                $gasImg = public_path('plantillas/gasolina/0.jpg');
+                $gasImg = public_path('plantillas/gasolina/0.png');
                 break;
             case '25':
                 $gasImg = public_path('plantillas/gasolina/25.png');
@@ -251,7 +252,8 @@ class OrdenVehiculoController extends Controller
         $TBS->Show(\OPENTBS_FILE, $docxFilePath);
         
         // Redirigir a la generación/descarga del PDF inmediatamente después de crear el DOCX
-        return redirect()->route('ordenvehiculos.pdf', ['id' => $orden->id]);
+        //return redirect()->route('ordenvehiculos.pdf', ['id' => $orden->id]);
+        return redirect()->route('ordenvehiculos.create')->with('orden_id', $orden->id);
     }
 
     public function generatePdf($id)
@@ -415,7 +417,7 @@ class OrdenVehiculoController extends Controller
                 'detalles' => 'Orden actualizado',
             ]
         );
-        return redirect()->route('ordenvehiculos.edit', ['ordenvehiculo' => $ordenVehiculo->id])->with('orden_id', $ordenVehiculo->id);
+        return redirect()->route('ordenvehiculos.generar', ['id' => $ordenVehiculo->id]);
     }
 
     /**

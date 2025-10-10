@@ -15,8 +15,8 @@ use Livewire\Component;
 #[Layout('components.layouts.auth')]
 class Login extends Component
 {
-    #[Validate('required|string|email')]
-    public string $email = '';
+    #[Validate('required|string')]
+    public string $usuario = '';
 
     #[Validate('required|string')]
     public string $password = '';
@@ -32,11 +32,11 @@ class Login extends Component
 
         $this->ensureIsNotRateLimited();
 
-        if (! Auth::attempt(['email' => $this->email, 'password' => $this->password], $this->remember)) {
+        if (! Auth::attempt(['usuario' => $this->usuario, 'password' => $this->password], $this->remember)) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
-                'email' => __('auth.failed'),
+                'usuario' => __('auth.failed'),
             ]);
         }
 
@@ -72,6 +72,6 @@ class Login extends Component
      */
     protected function throttleKey(): string
     {
-        return Str::transliterate(Str::lower($this->email).'|'.request()->ip());
+        return Str::transliterate(Str::lower($this->usuario).'|'.request()->ip());
     }
 }

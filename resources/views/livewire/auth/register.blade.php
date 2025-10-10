@@ -16,15 +16,53 @@
             :placeholder="__('Nombre completo')"
         />
 
-        <!-- Correo electrónico -->
+        <!-- Usuario -->
         <flux:input
-            wire:model="email"
-            :label="__('Correo electrónico')"
-            type="email"
+            wire:model="usuario"
+            :label="__('Usuario')"
+            type="text"
             required
-            autocomplete="email"
-            placeholder="correo@ejemplo.com"
+            autocomplete="usuario"
+            :placeholder="__('Usuario')"
         />
+
+        <!-- Agencia -->
+        <flux:select
+            wire:model="agencia"
+            :label="__('Agencia')"
+            required
+            :placeholder="__('Agencia')"
+        >
+        <flux:select.option class="text-zinc-600 font-semibold">ACANCEH</flux:select.option>
+        <flux:select.option class="text-zinc-600 font-semibold">CENTRO</flux:select.option>
+        <flux:select.option class="text-zinc-600 font-semibold">CONKAL</flux:select.option>
+        <flux:select.option class="text-zinc-600 font-semibold">HUNUCMA</flux:select.option>
+        <flux:select.option class="text-zinc-600 font-semibold">NORTE</flux:select.option>
+        <flux:select.option class="text-zinc-600 font-semibold">ORIENTE</flux:select.option>
+        <flux:select.option class="text-zinc-600 font-semibold">PONIENTE</flux:select.option>
+        <flux:select.option class="text-zinc-600 font-semibold">PROGRESO</flux:select.option>
+        <flux:select.option class="text-zinc-600 font-semibold">SUR</flux:select.option>
+        <flux:select.option class="text-zinc-600 font-semibold">UMAN</flux:select.option>
+        </flux:select>
+
+        <!-- Cargo -->
+        <flux:input
+            list="cargos"
+            wire:model="cargo"
+            :label="__('Cargo')"
+            type="text"
+            required
+            autocomplete="cargo"
+            :placeholder="__('Cargo')"
+        />
+
+        <datalist id="cargos">
+            <option value="Supervisor"></option>
+            <option value="Oficinista"></option>
+            <option value="Secretaria"></option>
+            <option value="Jefe de area"></option>
+            <option value="otro"></option>
+        </datalist>
 
         <!-- Contraseña -->
         <flux:input

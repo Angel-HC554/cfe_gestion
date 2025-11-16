@@ -3,6 +3,7 @@
 /public/build
 /public/hot
 /public/storage
+/public/fotos_supervision_semanal
 /storage/*.key
 /storage/pail
 /vendor

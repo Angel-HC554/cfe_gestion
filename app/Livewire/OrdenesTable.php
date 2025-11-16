@@ -84,7 +84,6 @@ class OrdenesTable extends Component
                 $this->reset(['selectedOrdenId', 'newStatus', 'showStatusModal', 'actualStatus']);
                 // Muestra un mensaje de éxito
                 $this->dispatch('orden-eliminada', message: 'Estado actualizado con éxito.');
-
             }
         }
     }
@@ -277,6 +276,10 @@ class OrdenesTable extends Component
         }
     }
 
+    public function placeholder()
+    {
+        return view('placeholders.progressbars2');
+    }
     public function render()
     {
         //consulta a bd para filtrar por fechas

@@ -4,7 +4,7 @@
     <flux:button icon="plus" variant="primary" wire:click="abrirModalNuevo">Nuevo Vehículo</flux:button>
 
     {{-- modal importar excel de vehiculos --}}
-    <flux:modal wire:model.live="showImportarModal" class="md:w-96">
+    <flux:modal wire:model.live="showImportarModal" class="md:w-[70vw]">
         <div class="space-y-6">
             <div>
                 <flux:heading size="lg">Importar vehiculos</flux:heading>
@@ -26,12 +26,12 @@
 
                 <div>
                     <input type="file" wire:model="archivoExcel"
-                        id="logo-upload"class="block w-full max-w-xs text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-emerald-600/10 file:text-emerald-700 hover:file:bg-emerald-100 cursor-pointer">
+                        id="logo-upload"class="block w-full max-w-sm text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-emerald-600/10 file:text-emerald-700 hover:file:bg-emerald-100 cursor-pointer">
                 </div>
 
                 {{-- 3. Mensaje de error de validación --}}
                 @error('archivoExcel')
-                    <p class="m-2 text-sm text-red-600">El archivo debe ser de tipo: xlsx, xls.</p>
+                    <p class="m-2 text-sm text-red-600">{{ $message }}</p>
                 @enderror
 
                 <p class="m-3 text-sm text-gray-500 dark:text-gray-300" id="file_input_help">.xlsx</p>

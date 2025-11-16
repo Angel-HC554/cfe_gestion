@@ -13,11 +13,21 @@ class MostrarNotificaciones extends Component
     {
         $this->numNotificaciones = OrdenVehiculo::where('orden_500', 'SI')->count();
         return <<<'HTML'
-        <div wire:poll.8400ms>
+        <flux:dropdown>
+                <flux:navbar.item icon="bell">
+                    <div wire:poll.9400ms>
             @if($numNotificaciones > 0)
             <flux:badge color="red">{{$numNotificaciones}}</flux:badge>
             @endif
-        </div>
+        </div> </flux:navbar.item>
+        <flux:navmenu>
+                    @if($numNotificaciones > 0)
+                        <flux:navmenu.item icon="exclamation-circle" href="{{ route('ordenvehiculos.index') }}">Orden 500 pendiente</flux:navmenu.item>
+                        @else
+                        <flux:navmenu.item icon="check" href="#" class="hover:text-green-700!">No hay pendientes</flux:navmenu.item>
+                        @endif
+                    </flux:navmenu>
+            </flux:dropdown> 
         HTML;
     }
 }

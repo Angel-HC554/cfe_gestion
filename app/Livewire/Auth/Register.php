@@ -3,16 +3,15 @@
 namespace App\Livewire\Auth;
 
 use App\Models\User;
-use Illuminate\Auth\Events\Registered;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
-use Livewire\Attributes\Layout;
 use Livewire\Component;
+use SweetAlert2\Laravel\Traits\WithSweetAlert;
+use Spatie\Permission\Models\Role;
 
-#[Layout('components.layouts.auth')]
 class Register extends Component
 {
+    use WithSweetAlert;
     public string $name = '';
 
     public string $usuario = '';
@@ -30,20 +29,43 @@ class Register extends Component
      */
     public function register(): void
     {
-        $validated = $this->validate([
+        $this->validate([
             'name' => ['required', 'string', 'max:255'],
             'usuario' => ['required', 'string', 'max:255', 'unique:'.User::class],
-            'password' => ['required', 'string', 'confirmed', Rules\Password::defaults()],
+            'password' => ['required', 'string', 'min:4', 'confirmed'],
             'agencia' => ['required', 'string', 'max:255'],
-            'cargo' => ['required', 'string', 'max:255'],
+            'cargo' => ['required', 'string', 'exists:roles,name'],
         ]);
 
-        $validated['password'] = Hash::make($validated['password']);
+        $user = User::create([
+            'name' => $this->name,
+            'usuario' => $this->usuario,
+            'agencia' => $this->agencia,
+            'cargo' => $this->cargo,
+            'password' => Hash::make($this->password),
+        ]);
 
-        event(new Registered(($user = User::create($validated))));
+        // Asignar el rol al usuario
+        $user->assignRole($this->cargo);
+        
+        // Obtener el rol y sus permisos
+        $role = Role::findByName($this->cargo);
+        
+        // Sincronizar los permisos del rol con el usuario
+        $user->syncPermissions($role->permissions);
 
-        Auth::login($user);
+        // Emitir evento para cerrar el modal desde Alpine.js
+        $this->dispatch('user-created');
 
-        $this->redirect(route('dashboard', absolute: false), navigate: true);
+        // Emitir evento global para refrescar la lista de usuarios
+        $this->dispatch('refresh-users-list');
+
+        $this->swalFire([
+            'title' => 'Usuario creado exitosamente',
+            'text' => 'El usuario se ha creado correctamente',
+            'icon' => 'success',
+            'showConfirmButton' => false,
+            'timer' => 1500
+        ]);
     }
 }

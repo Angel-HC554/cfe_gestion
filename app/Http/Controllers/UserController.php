@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission;
+use SweetAlert2\Laravel\Swal;
 
 class UserController extends Controller
 {
@@ -45,7 +48,12 @@ class UserController extends Controller
      */
     public function edit(User $user)
     {
-        //
+        $roles = Role::all();
+        $permisos = Permission::all()->pluck('name');
+        $userRol = $user->getRoleNames()->pluck('name');
+        $userPermisos = $user->getDirectPermissions()->pluck('name');
+        
+        return view('users.edit', compact('user', 'roles', 'permisos', 'userRol', 'userPermisos'));
     }
 
     /**
@@ -53,7 +61,31 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user)
     {
-        //
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'rol' => 'required|string',
+            'agencia' => 'required|string',
+            'permissions' => 'nullable|array'
+        ]);
+
+        $user->update([
+            'name' => $request->name,
+            'cargo' => $request->rol,
+            'agencia' => $request->agencia,
+            // ... otros campos
+        ]);
+
+        $user->syncRoles($request->rol);
+        $user->syncPermissions($request->permissions ?? []);
+
+        Swal::fire([
+            'position' => "top-center",
+            'icon' => "success",
+            'title' => "Actualizado correctamente.",
+            'showConfirmButton' => false,
+            'timer' => 1400
+        ]);
+        return redirect()->route('users.edit', $user);
     }
 
     /**

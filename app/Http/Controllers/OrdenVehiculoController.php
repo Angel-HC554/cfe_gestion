@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\HistorialOrden;
 use App\Models\OrdenArchivo;
 use App\Models\OrdenVehiculo;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Http\Request;
 use TinyButStrong\clsTinyButStrong;
 use Illuminate\Support\Facades\Process;
@@ -56,9 +57,14 @@ class OrdenVehiculoController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(Request $request)
     {
-        //Enviar numero de orden nueva
+        // Store the back URL in the session if provided in the request
+        if ($request->has('back_url')) {
+            session(['back_url' => $request->input('back_url')]);
+        }
+        
+        // Get the next order ID
         $id = OrdenVehiculo::max('id') + 1;
         return view('ordenvehiculos.create', compact('id'));
     }
@@ -143,6 +149,7 @@ class OrdenVehiculoController extends Controller
                 'detalles' => 'Orden creado',
             ]
         );
+        Cache::forget('conteos_mantenimiento');
         // Redirige a la misma página (create) y pasa el ID de la orden en la sesión.
         // Esto es lo que Livewire usará para abrir el modal de exito y descargar.
         //return redirect()->route('ordenvehiculos.generarOrden', ['id' => $orden->id]);
@@ -251,9 +258,19 @@ class OrdenVehiculoController extends Controller
         $docxFilePath = storage_path('app/public/orden_vehiculos/' . $fileName); 
         $TBS->Show(\OPENTBS_FILE, $docxFilePath);
         
-        // Redirigir a la generación/descarga del PDF inmediatamente después de crear el DOCX
-        //return redirect()->route('ordenvehiculos.pdf', ['id' => $orden->id]);
-        return redirect()->route('ordenvehiculos.create')->with('orden_id', $orden->id);
+        // Get the back URL from the session if it exists
+        $backUrl = session('back_url');
+        
+        // Always pass the back URL in the session for the next request
+        $redirect = redirect()->route('ordenvehiculos.create')
+            ->with('orden_id', $orden->id);
+            
+        if ($backUrl) {
+            // Keep the back URL in the session for the next request
+            $redirect->with('back_url', $backUrl);
+        }
+        
+        return $redirect;
     }
 
     public function generatePdf($id)
@@ -315,7 +332,7 @@ class OrdenVehiculoController extends Controller
     public function show(OrdenVehiculo $ordenvehiculo)
     {
         $historial = HistorialOrden::where('orden_vehiculo_id', $ordenvehiculo->id)
-            ->orderBy('id', 'desc')
+            ->orderBy('id', 'asc')
             ->get();
         $archivo1 = OrdenArchivo::where('orden_vehiculo_id', $ordenvehiculo->id)
             ->where('tipo_archivo', 'entrada')

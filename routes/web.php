@@ -2,6 +2,8 @@
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\OrdenVehiculoController;
 use App\Http\Controllers\VehiculoController;
+use App\Http\Controllers\SupervisionSemanalController;
+use App\Http\Controllers\SupervisionDiariaController;
 use App\Livewire\Settings\Appearance;
 use App\Livewire\Settings\Password;
 use App\Livewire\Settings\Profile;
@@ -9,7 +11,7 @@ use App\Models\Vehiculo;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return auth()->user() ? view('dashboard') : redirect('login');//revisar
+    return auth()->user() ? redirect()->route('dashboard') : redirect('login');//revisar
 });
 Route::resource('users',UserController::class);
 //Route::resource('ordenvehiculos', OrdenVehiculoController::class)->except(
@@ -23,9 +25,13 @@ Route::get('/ordenvehiculos/{id}/escaneo/entrada', [OrdenVehiculoController::cla
 Route::get('/ordenvehiculos/{id}/escaneo/salida', [OrdenVehiculoController::class, 'descargarEscaneoSalida'])->name('ordenvehiculos.escaneo.salida');
 
 
-Route::view('dashboard', 'dashboard')
+Route::get('dashboard', [App\Http\Controllers\HomeController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
+
+Route::get('/ejemplo', function () {
+    return view('ejemplo');
+})->name('ejemplo');
 
 Route::middleware(['auth'])->group(function () {
     Route::redirect('settings', 'settings/profile');
@@ -36,6 +42,10 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('ordenvehiculos', OrdenVehiculoController::class)->except(
     ['destroy']);
     Route::resource('vehiculos',VehiculoController::class);
+    Route::resource('supervision_semanal',SupervisionSemanalController::class);
+    Route::resource('supervision_diaria', \App\Http\Controllers\SupervisionDiariaController::class);
+    Route::get('supervicion_diaria.index', [SupervisionDiariaController::class, 'index'])->name('supervicion_diaria.index');
+    Route::get('supervicion_semanal.index', [SupervisionSemanalController::class, 'index'])->name('supervicion_semanal.index');
 });
 
 require __DIR__.'/auth.php';

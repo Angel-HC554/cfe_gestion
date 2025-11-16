@@ -102,7 +102,7 @@
         </div>
         <div class="mx-10" class="col-span-1">
             <flux:heading class="my-5" size="lg">SELECCIONE EL NIVEL DE GASOLINA:</flux:heading>
-            <livewire:gasolina-imagen :nivelGasolina="$nivelGasolina"/>
+            <livewire:gasolina-imagen :nivelGasolina="$nivelGasolina" lazy="on-load"/>
 
             <input name="gasolina" type="range" min="0" max="100"  class="range w-full"
                 step="25" aria-label="range" wire:model.live="nivelGasolina"/>
@@ -290,28 +290,33 @@
 
         <div class="mx-10 my-5">
             <div class="grid grid-cols-3 gap-4 mb-5">
+                <datalist id="user-list" wire:ignore>
+                    @foreach($allUsers as $user)
+                        <option value="{{ $user->name }}"></option>
+                    @endforeach
+                </datalist>
                 <flux:field>
                     <flux:badge>SOLICITA AREA USUARIA</flux:badge>
-                    <flux:input icon="user" name="areausuaria" placeholder="Escribe aqui" required value="{{ isset($ordenEditar) ? $ordenEditar->areausuaria : '' }}"/>
+                    <flux:input icon="user" name="areausuaria" placeholder="Escribe aqui" required value="{{ isset($ordenEditar) ? $ordenEditar->areausuaria : '' }}" wire:model.live.debounce.550ms="areausuaria" list="user-list"/>
                     {{-- datalist --}}
                     <flux:badge>R.P.E</flux:badge>
-                    <flux:input icon="identification" name="rpeusuaria" placeholder="Escribe aqui" required value="{{ isset($ordenEditar) ? $ordenEditar->rpeusuaria : '' }}"/>
+                    <flux:input icon="identification" name="rpeusuaria" placeholder="Escribe aqui" required value="{{ isset($ordenEditar) ? $ordenEditar->rpeusuaria : '' }}" wire:model="rpeusuaria"/>
                     {{-- autoacompletar input --}}
                 </flux:field>
                 <flux:field>
-                    <flux:badge>AUTORIZA JEFE DE DEPTO. AREA USUARIA</flux:badge>
-                    <flux:input icon="user" name="autoriza" placeholder="Escribe aqui" required value="{{ isset($ordenEditar) ? $ordenEditar->autoriza : '' }}"/>
+                    <flux:badge>AUTORIZA JEFE DE DEPTO</flux:badge>
+                    <flux:input icon="user" name="autoriza" placeholder="Escribe aqui" required value="{{ isset($ordenEditar) ? $ordenEditar->autoriza : '' }}" wire:model.live.debounce.550ms="autoriza" list="user-list"/>
                     {{-- datalist --}}
                     <flux:badge>R.P.E</flux:badge>
-                    <flux:input icon="identification" name="rpejefedpt" placeholder="Escribe aqui" required value="{{ isset($ordenEditar) ? $ordenEditar->rpejefedpt : '' }}"/>
+                    <flux:input icon="identification" name="rpejefedpt" placeholder="Escribe aqui" required value="{{ isset($ordenEditar) ? $ordenEditar->rpejefedpt : '' }}" wire:model="rpejefedpt"/>
                     {{-- autoacompletar input --}}
                 </flux:field>
                 <flux:field>
-                    <flux:badge>SERVICIOS AUTORIZADOS Y RECIBIDOS POR RESPONSABLE DE PV</flux:badge>
-                    <flux:input icon="user" name="resppv" placeholder="Escribe aqui" required value="{{ isset($ordenEditar) ? $ordenEditar->resppv : '' }}"/>
+                    <flux:badge>AUTORIZA Y RECIBE RESPONSABLE DE PV</flux:badge>
+                    <flux:input icon="user" name="resppv" placeholder="Escribe aqui" required value="{{ isset($ordenEditar) ? $ordenEditar->resppv : '' }}" wire:model.live.debounce.550ms="resppv" list="user-list"/>
                     {{-- datalist --}}
                     <flux:badge>R.P.E</flux:badge>
-                    <flux:input icon="identification" name="rperesppv" placeholder="Escribe aqui" required value="{{ isset($ordenEditar) ? $ordenEditar->rperesppv : '' }}"/>
+                    <flux:input icon="identification" name="rperesppv" placeholder="Escribe aqui" required value="{{ isset($ordenEditar) ? $ordenEditar->rperesppv : '' }}" wire:model="rperesppv"/>
                     {{-- autoacompletar input --}}
                 </flux:field>
             </div>
@@ -322,7 +327,7 @@
                 </flux:button>
 
                 {{-- Modal de confirmacion --}}
-                <flux:modal name="confirmar" class="md:min-w-lg" wire:model.live="showModal">
+                <flux:modal :dismissible="false" :closable="false" name="confirmar" class="md:min-w-lg" wire:model.live="showModal">
                     <div class="space-y-6">
                         <div>
                             <h1 class="text-xl">{{isset($ordenEditar) ? 'El documento se actualizó correctamente!':'El documento se generó correctamente!'}}</h1>
@@ -334,8 +339,7 @@
                                 href="{{ route('ordenvehiculos.pdf', ['id' => $ordenId]) }}">
                                 Descargar Documento
                             </flux:button>
-                            <flux:button variant="primary" class="ml-5" href="{{ route('ordenvehiculos.index') }}">
-                                Aceptar</flux:button>
+                            <flux:button variant="primary" class="ml-5" wire:click="closeModal">Aceptar</flux:button>
                         </div>
                     </div>
                 </flux:modal>

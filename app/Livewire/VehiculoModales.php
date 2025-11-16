@@ -99,6 +99,17 @@ class VehiculoModales extends Component
         }
     }
 
+    public function placeholder()
+    {
+        return <<<'HTML'
+        <div>
+            <flux:button icon="arrow-up-tray" variant="outline" class="mr-2">Importar</flux:button>
+            <flux:button icon="arrow-down-tray" variant="outline" class="mr-2">Exportar</flux:button>
+            <flux:button icon="plus" variant="primary">Nuevo Vehículo</flux:button>
+        </div>
+        HTML;
+    }
+ 
     public function render()
     {
         return view('livewire.vehiculo-modales');

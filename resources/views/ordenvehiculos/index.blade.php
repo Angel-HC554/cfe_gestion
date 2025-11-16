@@ -35,6 +35,6 @@
         </div>
 
 
-        <livewire:ordenes-table />
+        <livewire:ordenes-table lazy/>
     </div>
 </x-layouts.app>

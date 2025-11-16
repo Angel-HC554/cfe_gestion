@@ -38,6 +38,7 @@ class VerAutos extends Component
         $this->reset(['search', 'estado']);
         $this->resetPage();
     }
+    
     public function render()
     {
         $consulta = Vehiculo::query()

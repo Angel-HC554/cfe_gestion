@@ -1,8 +1,5 @@
 <div class="flex flex-col gap-6">
-    <x-auth-header :title="__('Crea una cuenta')" :description="__('Ingresa tus datos para crear tu cuenta')" />
-
-    <!-- Estado de la sesión -->
-    <x-auth-session-status class="text-center" :status="session('status')" />
+    <x-auth-header :title="__('Crea una cuenta')" :description="__('Ingresa los datos para crear una cuenta')" />
 
     <form method="POST" wire:submit="register" class="flex flex-col gap-6">
         <!-- Nombre -->
@@ -46,23 +43,19 @@
         </flux:select>
 
         <!-- Cargo -->
-        <flux:input
-            list="cargos"
+        <flux:select
             wire:model="cargo"
             :label="__('Cargo')"
-            type="text"
             required
-            autocomplete="cargo"
-            :placeholder="__('Cargo')"
-        />
-
-        <datalist id="cargos">
-            <option value="Supervisor"></option>
-            <option value="Oficinista"></option>
-            <option value="Secretaria"></option>
-            <option value="Jefe de area"></option>
-            <option value="otro"></option>
-        </datalist>
+            :placeholder="__('Cargo (Permisos)')"
+        >
+            <flux:select.option value="supervisor" class="text-zinc-600 font-semibold">Supervisor</flux:select.option>
+            <flux:select.option value="oficinista" class="text-zinc-600 font-semibold">Oficinista</flux:select.option>
+            <flux:select.option value="secretaria" class="text-zinc-600 font-semibold">Secretaria</flux:select.option>
+            <flux:select.option value="jefe_area" class="text-zinc-600 font-semibold">Jefe de area</flux:select.option>
+            <flux:select.option value="otro" class="text-zinc-600 font-semibold">otro</flux:select.option>
+            <flux:select.option value="admin" class="text-zinc-600 font-semibold">Admin Sistema</flux:select.option>
+        </flux:select>
 
         <!-- Contraseña -->
         <flux:input
@@ -93,8 +86,11 @@
         </div>
     </form>
 
+    {{-- 
     <div class="space-x-1 rtl:space-x-reverse text-center text-sm text-zinc-600 dark:text-zinc-400">
         <span>{{ __('¿Ya tienes una cuenta?') }}</span>
         <flux:link :href="route('login')" wire:navigate>{{ __('Inicia sesión') }}</flux:link>
     </div>
+    --}}
+    
 </div>

@@ -6,6 +6,7 @@ use App\Imports\VehiculosImport;
 use App\Models\Vehiculo;
 use Illuminate\Http\Request;
 use App\Models\OrdenVehiculo;
+use App\Models\SupervisionSemanal;
 use Maatwebsite\Excel\Facades\Excel;
 
 class VehiculoController extends Controller
@@ -37,9 +38,18 @@ class VehiculoController extends Controller
      */
     public function show(Vehiculo $vehiculo)
     {
+        $vehiculo->load(['latestSupervision', 'latestMantenimiento']);
         $numero_eco = $vehiculo->no_economico;
         $ordenes = OrdenVehiculo::with('archivos', 'historial')->where('noeconomico', $numero_eco)->get();
-        return view('vehiculos.show', compact('vehiculo', 'ordenes'));
+        $fotos = SupervisionSemanal::select('foto_del', 'foto_tra', 'foto_lado_der', 'foto_lado_izq')
+            ->where('no_eco', $numero_eco)
+            ->orderBy('created_at', 'desc')
+            ->first();
+        $supervision_existe = SupervisionSemanal::where('no_eco', $numero_eco)
+            ->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()])
+            ->exists();
+
+        return view('vehiculos.show', compact('vehiculo', 'ordenes', 'supervision_existe', 'fotos'));
     }
 
     /**

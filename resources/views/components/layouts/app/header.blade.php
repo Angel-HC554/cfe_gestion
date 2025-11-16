@@ -3,6 +3,9 @@
 
 <head>
     @include('partials.head')
+    @include('sweetalert2::index')
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@6.1/dist/fancybox/fancybox.css"/>   
 </head>
 
 <body class="min-h-screen bg-neutral-50 dark:bg-zinc-800">
@@ -15,7 +18,7 @@
         </a>
 
         <flux:navbar class="-mb-px max-lg:hidden">
-            <flux:navbar.item icon="layout-grid" :href="route('dashboard')" :current="request()->routeIs('dashboard')"
+            <flux:navbar.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')"
                 wire:navigate>
                 {{ __('Inicio') }}
             </flux:navbar.item>
@@ -31,17 +34,16 @@
 
              <flux:dropdown>
                 <flux:navbar.item icon:trailing="chevron-down">Opciones</flux:navbar.item>
-                <flux:navmenu>
-                    <flux:navmenu.item icon="document-text" href="{{ route('ordenvehiculos.index') }}">Generación de órdenes</flux:navmenu.item>
-                    <flux:navmenu.item icon="truck" href="{{ route('vehiculos.index') }}">Vehiculos</flux:navmenu.item>
-                    <flux:navmenu.item icon="user" href="{{ route('users.index') }}">Usuarios</flux:navmenu.item>
-                </flux:navmenu>
+                <flux:menu class="bg-slate-50!">
+                    <flux:navmenu.item icon="document-text" href="{{ route('ordenvehiculos.index') }}" class="hover:text-green-700! hover:bg-zinc-800/5">Generación de órdenes</flux:navmenu.item>
+                    <flux:navmenu.item icon="truck" href="{{ route('vehiculos.index') }}" class="hover:text-green-700! hover:bg-zinc-800/5">Vehiculos</flux:navmenu.item>
+                    <flux:navmenu.item icon="user" href="{{ route('users.index') }}" class="hover:text-green-700! hover:bg-zinc-800/5">Usuarios</flux:navmenu.item>
+                    <flux:menu.submenu icon="clipboard-document-check" heading="Supervisiones" class="hover:text-green-700! bg-slate-50! hover:bg-zinc-800/5">
+                        <flux:menu.item icon="calendar" href="{{ route('supervicion_semanal.index') }}" class="hover:text-green-700! hover:bg-zinc-800/5">Semanal</flux:menu.item>
+                        <flux:menu.item icon="calendar" href="{{ route('supervicion_diaria.index') }}" class="hover:text-green-700! hover:bg-zinc-800/5">Diario</flux:menu.item>
+                        </flux:menu.submenu>
+                </flux:menu>
             </flux:dropdown> 
-
-            <flux:navbar.item icon="bell" :href="route('dashboard')" :current="request()->routeIs('')"
-                wire:navigate> 
-                <livewire:mostrar-notificaciones />
-            </flux:navbar.item>
 
         </flux:navbar>
 
@@ -58,8 +60,9 @@
          --}}
 
         <!-- Desktop User Menu -->
+        <livewire:mostrar-notificaciones />
         <flux:dropdown position="top" align="end">
-            <flux:profile name="{{ auth()->user()->name }}" class="cursor-pointer" :initials="auth()->user()->initials()" />
+            <flux:profile name="{{ auth()->user()->name }}" class="cursor-pointer" :initials="auth()->user()->initials()"  avatar:color="emerald"/>
 
             <flux:menu>
                 <flux:menu.radio.group>
@@ -134,7 +137,26 @@
 
     {{ $slot }}
 
-    @fluxScripts
+    @fluxScripts  
+    @include('sweetalert2::index')
+    <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@6.1/dist/fancybox/fancybox.umd.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            Fancybox.bind('[data-fancybox]', {
+                // Opciones de Fancybox
+                Toolbar: {
+                    display: {
+                        left: ['infobar'],
+                        middle: [],
+                        right: ['close'],
+                    },
+                },
+                Thumbs: {
+                    type: 'classic',
+                },
+            });
+        });
+    </script>
 </body>
 
 </html>

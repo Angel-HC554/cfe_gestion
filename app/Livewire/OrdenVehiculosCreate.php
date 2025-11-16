@@ -2,9 +2,10 @@
 
 namespace App\Livewire;
 
-use App\Models\OrdenVehiculo;
-use App\Models\Vehiculo;
 use Livewire\Component;
+use App\Models\Vehiculo;
+use App\Models\User;
+use App\Models\OrdenVehiculo;
 
 class OrdenVehiculosCreate extends Component
 {
@@ -21,11 +22,29 @@ class OrdenVehiculosCreate extends Component
     //Controla modal de confirmacion y descarga de orden
     public $showModal = false;
     public $ordenId = 0;
+    public $backUrl = null;
+    // --- 2. NUEVAS PROPIEDADES ---
+    public $allUsers; // Para el datalist
+
+    // Pares de inputs
+    public $areausuaria;
+    public $rpeusuaria;
+    public $autoriza;
+    public $rpejefedpt;
+    public $resppv;
+    public $rperesppv;
 
     public function mount()
     {
         // Para obtener todos los numeros economicos sin repetir
         $this->noeconom = Vehiculo::pluck('no_economico')->unique();
+        // Cargar todos los usuarios para el datalist
+        // Seleccionamos solo los campos necesarios para optimizar
+        $this->allUsers = User::select('name', 'usuario')->get();
+        
+        // Get the back URL from the session if it exists
+        // Don't clear it here, we'll clear it only when we use it
+        $this->backUrl = session('back_url');
 
         //Para saber que imagen de la gasolina mostrar
         if ($this->ordenEditar) {
@@ -41,6 +60,13 @@ class OrdenVehiculosCreate extends Component
             $this->numeco = $this->ordenEditar->noeconomico;
             $this->placa = $this->ordenEditar->placas;
             $this->modelo = $this->ordenEditar->marca;
+            // --- Inicializar los nuevos campos ---
+            $this->areausuaria = $this->ordenEditar->areausuaria;
+            $this->rpeusuaria = $this->ordenEditar->rpeusuaria;
+            $this->autoriza = $this->ordenEditar->autoriza;
+            $this->rpejefedpt = $this->ordenEditar->rpejefedpt;
+            $this->resppv = $this->ordenEditar->resppv;
+            $this->rperesppv = $this->ordenEditar->rperesppv;
         }
 
         // El método mount() se ejecuta cada vez que el componente se carga.
@@ -65,6 +91,72 @@ class OrdenVehiculosCreate extends Component
     }
     //value="{{ isset($ordenEditar) ? $ordenEditar->marca : '' }}"
     //value="{{ isset($ordenEditar) ? $ordenEditar->placas : '' }}"
+    // --- 4. NUEVOS UPDATED HOOKS ---
+
+    /**
+     * Se ejecuta cuando la propiedad $areausuaria cambia.
+     * Busca al usuario por nombre y autocompleta $rpeusuaria.
+     */
+    public function updatedAreausuaria($name)
+    {
+        $user = User::where('name', $name)->first();
+        if ($user) {
+            $this->rpeusuaria = $user->usuario; // 'usuario' es el RPE, según tu descripción
+        } else {
+            $this->rpeusuaria = ''; // Limpiar si el nombre no coincide
+        }
+    }
+
+    /**
+     * Se ejecuta cuando la propiedad $autoriza cambia.
+     */
+    public function updatedAutoriza($name)
+    {
+        $user = User::where('name', $name)->first();
+        if ($user) {
+            $this->rpejefedpt = $user->usuario;
+        } else {
+            $this->rpejefedpt = '';
+        }
+    }
+
+    /**
+     * Se ejecuta cuando la propiedad $resppv cambia.
+     */
+    public function updatedResppv($name)
+    {
+        $user = User::where('name', $name)->first();
+        if ($user) {
+            $this->rperesppv = $user->usuario;
+        } else {
+            $this->rperesppv = '';
+        }
+    }
+
+    /**
+     * Handle the modal close event
+     */
+    public function closeModal()
+    {
+        $this->showModal = false;
+        
+        // If we have a back URL, redirect to it
+        if ($this->backUrl) {
+            $backUrl = $this->backUrl;
+            
+            // Clear the back URL from the session
+            session()->forget('back_url');
+            $this->backUrl = null;
+            
+            return redirect($backUrl);
+        }
+        
+        // Clear any remaining back URL from the session
+        session()->forget('back_url');
+        
+        // Otherwise, redirect to the ordenvehiculos index
+        return redirect()->route('ordenvehiculos.index');
+    }
 
     public function render()
     {

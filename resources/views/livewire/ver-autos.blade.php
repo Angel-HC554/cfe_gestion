@@ -1,18 +1,21 @@
 <div>
-    <div class="flex flex-row  mx-70 justify-between border-1 shadow-sm items-center bg-white rounded-md border-t-3 border-t-emerald-700/40 p-3">
-        <flux:input icon="magnifying-glass" placeholder="Buscar por no. económico" class="w-72 sm:w-96" wire:model.live="search" />
-        <div class="flex flex-col text-gray-700 font-medium">
-            Estado
-            <select type="date" id=""
-                class="w-64 h-8 border border-gray-300 bg-gray-50 rounded-md p-1 text-gray-500 focus:ring-emerald-600 focus:border-emerald-600"
-                wire:model.live="estado"> 
-                <option value="">Todos</option>
-                @foreach ($estados as $estado)
-                    <option value="{{ $estado }}">{{ $estado }} </option>
-                @endforeach
-            </select>
-        </div>
-        <flux:button wire:click="resetFilters" variant="filled" >Borrar filtros</flux:button>
+    <div
+        class="flex flex-row mx-70 gap-4 shadow-sm items-center bg-white rounded-md border-t-3 border-t-emerald-700/40 p-3">
+
+        <flux:input icon="magnifying-glass" size="sm" placeholder="no. económico" class="w-68 sm:w-96"
+            wire:model.live="search" />
+
+        <select type="date" id=""
+            class="w-64 h-8 border border-gray-300 bg-gray-50 rounded-md p-1 text-gray-500 focus:ring-emerald-600 focus:border-emerald-600"
+            wire:model.live="estado">
+            <option value="">Todos</option>
+            @foreach ($estados as $estado)
+                <option value="{{ $estado }}" class="text-gray-700">{{ $estado }} </option>
+            @endforeach
+        </select>
+
+        <flux:button wire:click="resetFilters" variant="filled">Borrar filtros</flux:button>
+
     </div>
     {{-- Mensaje flash post-importación --}}
     @if (session('mensajeEscaneado'))
@@ -45,7 +48,7 @@
 
                 <div class="flex-1 p-4 bg-gradient-to-t from-emerald-600 to-emerald-900 rounded-b-xl text-white">
                     <div class="flex justify-between">
-                        <h2 class="font-bold text-lg text-white">{{ $vehiculo->marca }}. {{ $vehiculo->modelo }}</h2>
+                        <h2 class="font-bold text-lg text-white">{{ $vehiculo->marca }} {{ $vehiculo->modelo }}</h2>
                         <p class="text-sm">Año: {{ $vehiculo->año }}</p>
                     </div>
                     <p class=" text-md font-semibold text-white">No económico: {{ $vehiculo->no_economico }}</p>
@@ -67,4 +70,3 @@
         {{ $vehiculos->links() }}
     </div>
 </div>
-

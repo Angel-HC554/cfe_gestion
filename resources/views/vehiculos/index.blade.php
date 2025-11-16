@@ -6,8 +6,8 @@
         </div>
     
         <div class="flex space-x-2">
-            <livewire:vehiculo-modales />
+            <livewire:vehiculo-modales lazy/>
         </div>
     </div>
-    <livewire:ver-autos />
+    <livewire:ver-autos/>
 </x-layouts.app>

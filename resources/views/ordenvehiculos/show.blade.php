@@ -4,7 +4,7 @@
             <flux:icon.arrow-path-rounded-square class="size-7" />
             Historial de la orden: {{ $ordenvehiculo->id }}
         </flux:heading>
-        <flux:button variant="primary" icon="chevron-left" href="{{ request('back') ? urldecode(request('back')) : route('ordenvehiculos.index') }}">Volver
+        <flux:button variant="primary" icon="chevron-left" href="{{ url()->previous() }}">Volver
         </flux:button>
     </div>
     <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">

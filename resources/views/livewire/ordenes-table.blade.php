@@ -77,7 +77,7 @@
                     <tr class="bg-white border-b dark:bg-green-950 dark:border-gray-700 border-zinc-200">
                         <th scope="row"
                             class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                            <a href="{{ $backUrl ? route('ordenvehiculos.show', $orden->id) . '?back=' . urlencode($backUrl) : route('ordenvehiculos.show', $orden->id) }}" class="underline ml-3 px-4">
+                            <a href="{{route('ordenvehiculos.show', $orden->id) }}" class="underline ml-3 px-4">
                                 {{ $orden->id }}
                             </a>
                         </th>
@@ -97,11 +97,15 @@
 
                             <flux:dropdown>
                                 <flux:button icon:trailing="document-text" class="bg-blue-100! hover:bg-blue-200!"/>
-                                    <flux:menu>
-                                    <flux:menu.item icon="document" href="{{ route('ordenvehiculos.pdf', [$orden->id]) }}">Documento generado</flux:menu.item>
-                                    <flux:menu.item icon="document-arrow-up" wire:click="descargarEscaneo1({{ $orden->id }})">Entregado a PV</flux:menu.item>
-                                    <flux:menu.item icon="document-check" wire:click="descargarEscaneo2({{ $orden->id }})">Concluido</flux:menu.item>
-                                    </flux:menu>
+                                <flux:menu>
+                                <flux:menu.item href="{{ route('ordenvehiculos.pdf', [$orden->id]) }}" class="text-sky-700! hover:text-sky-900! hover:bg-sky-100!"> <flux:icon.document variant="mini" class="mr-2"/> Documento generado</flux:menu.item>
+                                    @if($orden->archivos->count() >= 1)
+                                    <flux:menu.item wire:click="descargarEscaneo1({{ $orden->id }})" class="text-orange-500! hover:text-orange-700! hover:bg-orange-100!"> <flux:icon.document variant="mini" class="mr-2"/>Entregado a PV</flux:menu.item>
+                                    @endif
+                                    @if($orden->archivos->count() > 1)
+                                    <flux:menu.item wire:click="descargarEscaneo2({{ $orden->id }})" class="text-emerald-500! hover:text-emerald-700! hover:bg-emerald-100!"> <flux:icon.document variant="mini" class="mr-2"/>Concluido</flux:menu.item>
+                                    @endif
+                                </flux:menu>
                             </flux:dropdown>
 
                         </td>
@@ -208,7 +212,7 @@
 
                 {{-- 3. Mensaje de error de validación --}}
                 @error('archivoEscaneado')
-                    <p class="m-2 text-sm text-red-600">El archivo escaneado debe ser un archivo de tipo: pdf.</p>
+                    <p class="m-2 text-sm text-red-600">{{ $message }}</p>
                 @enderror
 
                 <p class="m-3 text-sm text-gray-500 dark:text-gray-300" id="file_input_help">El formato debe ser PDF
